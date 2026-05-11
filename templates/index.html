@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fore Solutions | AI Assistant</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        --bot-bubble: #ffffff;
+        --user-bubble: #2563eb;
+        --text-dark: #1f2937;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg-gradient);
+        height: 100vh;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Main Container */
+      .chat-container {
+        width: 100%;
+        max-width: 500px;
+        height: 80vh;
+        background: rgba(255, 255, 255, 0.95);
+        display: flex;
+        flex-direction: column;
+        border-radius: 20px;
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+      }
+
+      /* Header */
+      .chat-header {
+        padding: 20px;
+        background: var(--primary-color);
+        color: white;
+        text-align: center;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      /* Messages Area */
+      .messages-window {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        background: #f8fafc;
+      }
+
+      .message {
+        max-width: 80%;
+        padding: 12px 16px;
+        border-radius: 15px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .bot-msg {
+        align-self: flex-start;
+        background: var(--bot-bubble);
+        color: var(--text-dark);
+        border-bottom-left-radius: 2px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+      }
+
+      .user-msg {
+        align-self: flex-end;
+        background: var(--user-bubble);
+        color: white;
+        border-bottom-right-radius: 2px;
+      }
+
+      /* Input Area */
+      .input-area {
+        padding: 20px;
+        background: white;
+        display: flex;
+        gap: 10px;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 1px solid #e2e8f0;
+        border-radius: 25px;
+        outline: none;
+        transition: border 0.3s, opacity 0.3s;
+        font-family: "Inter", sans-serif;
+      }
+
+      input:focus {
+        border-color: var(--primary-color);
+      }
+
+      /* Disabled state for input */
+      input:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f1f5f9;
+      }
+
+      button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          background 0.2s,
+          opacity 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      button:hover:not(:disabled) {
+        background: #1e40af;
+        transform: scale(1.05);
+      }
+
+      /* Disabled state for button */
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Scrollbar styling */
+      .messages-window::-webkit-scrollbar {
+        width: 5px;
+      }
+      .messages-window::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+
+      @keyframes dots {
+        0%,
+        20% {
+          content: "";
+        }
+        40% {
+          content: ".";
+        }
+        60% {
+          content: "..";
+        }
+        80%,
+        100% {
+          content: "...";
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-header">
+        <i class="fas fa-robot"></i>
+        <span>Fore Solutions AI</span>
+      </div>
+
+      <div id="messages" class="messages-window">
+        <div class="message bot-msg">
+          Hello! I'm your Fore Solutions assistant. How can I help you today?
+        </div>
+      </div>
+
+      <form
+        class="input-area"
+        id="chat-form"
+        onsubmit="
+          event.preventDefault();
+          send();
+        "
+      >
+        <input
+          type="text"
+          id="question"
+          placeholder="Type your message..."
+          autocomplete="off"
+        />
+        <button type="submit" id="send-btn">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </form>
+    </div>
+
+    <script>
+      const messagesContainer = document.getElementById("messages");
+      const inputEl = document.getElementById("question");
+      const sendBtn = document.getElementById("send-btn");
+      let isThinking = false;
+
+      function setInputState(disabled) {
+        inputEl.disabled = disabled;
+        sendBtn.disabled = disabled;
+        if (disabled) {
+          inputEl.placeholder = "Please wait...";
+        } else {
+          inputEl.placeholder = "Type your message...";
+          inputEl.focus();
+        }
+      }
+
+      function appendMessage(text, sender) {
+        const msgDiv = document.createElement("div");
+        msgDiv.classList.add("message");
+        msgDiv.classList.add(sender === "user" ? "user-msg" : "bot-msg");
+        msgDiv.innerHTML = formatMessage(text);
+        messagesContainer.appendChild(msgDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      function formatMessage(text) {
+        // Step 1 — Escape HTML to prevent injection
+        text = text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+
+        // Step 2 — Bold (**text**)
+        text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+        // Step 3 — Bullet points (lines starting with - or •)
+        text = text.replace(/^[-•]\s+(.+)$/gm, "<li>$1</li>");
+        text = text.replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>");
+
+        // Step 4 — Numbered lines (1. 2. 3.)
+        text = text.replace(/^\d+\.\s+(.+)$/gm, "<li>$1</li>");
+
+        // Step 5 — Line breaks
+        text = text.replace(/\n/g, "<br>");
+
+        return text;
+      }
+
+      function send() {
+        if (isThinking) return;
+
+        const question = inputEl.value.trim();
+        if (question === "") return;
+
+        appendMessage(question, "user");
+        inputEl.value = "";
+
+        // Disable input while waiting
+        isThinking = true;
+        setInputState(true);
+
+        const thinkingDiv = document.createElement("div");
+        thinkingDiv.classList.add("message", "bot-msg");
+        thinkingDiv.id = "thinking";
+        thinkingDiv.innerText = "🤖 Thinking...";
+        messagesContainer.appendChild(thinkingDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: question }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            const thinking = document.getElementById("thinking");
+            if (thinking) thinking.remove();
+            typeMessage(data.answer);
+          })
+          .catch((err) => {
+            console.error(err);
+            const thinking = document.getElementById("thinking");
+            if (thinking) thinking.remove();
+            appendMessage("⚠️ Server error. Please try again.", "bot");
+          })
+          .finally(() => {
+            // Re-enable input after response
+            isThinking = false;
+            setInputState(false);
+          });
+      }
+
+      function typeMessage(text) {
+        const msgDiv = document.createElement("div");
+        msgDiv.classList.add("message", "bot-msg");
+        messagesContainer.appendChild(msgDiv);
+
+        let i = 0;
+        function type() {
+          if (i < text.length) {
+            msgDiv.innerText = text.substring(0, i + 1);
+            i++;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            setTimeout(type, 18);
+          } else {
+            msgDiv.innerHTML = formatMessage(text);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          }
+        }
+        type();
+      }
+
+      inputEl.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          send();
+        }
+      });
+    </script>
+  </body>
+</html>

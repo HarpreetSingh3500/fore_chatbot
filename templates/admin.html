@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fore Solutions | Knowledge Admin</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #2563eb;
+        --bg: #f8fafc;
+        --text: #1e293b;
+        --border: #e2e8f0;
+        --success: #166534;
+        --warning: #9a3412;
+        --info: #3730a3;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 40px 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: var(--primary);
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .form-group {
+        margin-bottom: 25px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      input[type="password"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-sizing: border-box;
+        outline: none;
+      }
+      .upload-area {
+        border: 2px dashed var(--border);
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        background: #fafafa;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .upload-area:hover {
+        border-color: var(--primary);
+        background: #eff6ff;
+      }
+      .btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        border-radius: 10px;
+        width: 100%;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .file-section {
+        margin-top: 40px;
+        border-top: 1px solid var(--border);
+        padding-top: 30px;
+      }
+      .file-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background: #f1f5f9;
+        margin-bottom: 12px;
+        border-radius: 12px;
+      }
+      .file-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .status-badge {
+        font-size: 0.7rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        display: inline-block;
+        margin-top: 4px;
+      }
+      .state-synced {
+        background: #dcfce7;
+        color: var(--success);
+      }
+      .state-modified {
+        background: #ffedd5;
+        color: var(--warning);
+      }
+      .state-updated {
+        background: #e0e7ff;
+        color: var(--info);
+      }
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+      }
+      .action-btn {
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+      }
+      .edit-btn {
+        background: #fef9c3;
+        color: #a16207;
+      }
+      .sync-btn {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+      .edit-btn:hover {
+        background: #fde047;
+      }
+      .sync-btn:hover {
+        background: #bfdbfe;
+      }
+
+      /* Modal */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-overlay.active {
+        display: flex;
+      }
+      .modal {
+        background: white;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 860px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      }
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+      }
+      .modal-header h3 {
+        margin: 0;
+        color: var(--primary);
+        font-size: 1rem;
+      }
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        color: #64748b;
+      }
+      .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+      }
+      .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+
+      /* Page tabs */
+      .page-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .page-tab {
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        background: #f1f5f9;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: 0.2s;
+      }
+      .page-tab.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .page-editor {
+        display: none;
+      }
+      .page-editor.active {
+        display: block;
+      }
+      .page-editor textarea {
+        width: 100%;
+        min-height: 320px;
+        padding: 16px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-family: "Inter", monospace;
+        font-size: 0.88rem;
+        line-height: 1.6;
+        resize: vertical;
+        box-sizing: border-box;
+        outline: none;
+      }
+      .page-editor textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px #dbeafe;
+      }
+
+      .btn-secondary {
+        background: #f1f5f9;
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn-save {
+        background: #16a34a;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn-save:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+      }
+      .modal-status {
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 20px;
+        display: none;
+        animation: fadeIn 0.3s ease;
+        border: 1px solid transparent;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .modal-status.info {
+        display: block;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+      }
+      .modal-status.success {
+        display: block;
+        background: #dcfce7;
+        color: #15803d;
+        border-color: #bbf7d0;
+      }
+      .modal-status.error {
+        display: block;
+        background: #fee2e2;
+        color: #dc2626;
+        border-color: #fecaca;
+        box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.1);
+      }
+
+      .loading-spinner {
+        text-align: center;
+        padding: 40px;
+        color: #64748b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="loginSection" class="upload-card" style="text-align: center">
+        <h3><i class="fas fa-lock"></i> Admin Login</h3>
+        <input
+          type="password"
+          id="adminPass"
+          class="input-style"
+          placeholder="Enter Secret Key"
+          style="max-width: 300px"
+        />
+        <button
+          onclick="loginAdmin()"
+          class="btn"
+          style="max-width: 300px; margin-top: 10px"
+        >
+          Unlock Panel
+        </button>
+      </div>
+      <div id="adminControls" style="display: none">
+        <h2><i class="fas fa-database"></i> Fore Solutions Admin</h2>
+        <button
+          onclick="logout()"
+          class="btn-secondary"
+          style="width: auto; float: right; padding: 10px"
+        >
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+        <p>Upload and synchronize documents with the Vector Knowledge Base.</p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0" />
+
+        <div id="uploadStatus" class="modal-status"></div>
+
+        <form
+          action="/admin/upload"
+          method="POST"
+          enctype="multipart/form-data"
+          id="mainUploadForm"
+          onsubmit="handleUpload(event)"
+        >
+          <div class="form-group">
+            <label>Add New Document (PDF)</label>
+            <div
+              class="upload-area"
+              onclick="document.getElementById('fileInput').click()"
+            >
+              <i
+                class="fas fa-file-medical"
+                style="font-size: 30px; color: #94a3b8; margin-bottom: 10px"
+              ></i>
+              <p id="fileNameDisplay">Select a file to upload</p>
+              <input
+                type="file"
+                id="fileInput"
+                name="file"
+                accept=".pdf"
+                style="display: none"
+                onchange="updateNameDisplay(this)"
+                required
+              />
+            </div>
+          </div>
+          <button type="submit" class="btn">Upload & Process</button>
+        </form>
+
+        <div class="file-section">
+          <h3><i class="fas fa-folder-open"></i> Managed Documents</h3>
+          {% if files %} {% for file in files %}
+          <div class="file-item">
+            <div class="file-info">
+              <i
+                class="far fa-file-pdf"
+                style="font-size: 24px; color: #ef4444"
+              ></i>
+              <div>
+                <span
+                  style="display: block; font-weight: 600; font-size: 0.95rem"
+                  >{{ file.name }}</span
+                >
+                {% if file.status == 'synced' %}
+                <span class="status-badge state-synced"
+                  ><i class="fas fa-check-circle"></i> Synced</span
+                >
+                {% elif file.status == 'modified' %}
+                <span class="status-badge state-modified"
+                  ><i class="fas fa-exclamation-circle"></i> Edited (Not
+                  Synced)</span
+                >
+                {% else %}
+                <span class="status-badge state-updated"
+                  ><i class="fas fa-history"></i> Updated & Synced</span
+                >
+                {% endif %}
+              </div>
+            </div>
+            <div class="action-buttons">
+              <!-- EDIT BUTTON -->
+              <button
+                type="button"
+                class="action-btn edit-btn"
+                title="Edit PDF content"
+                onclick="openEditor('{{ file.name }}')"
+              >
+                <i class="fas fa-pen"></i>
+              </button>
+              <!-- SYNC BUTTON -->
+              <button
+                type="button"
+                class="action-btn sync-btn"
+                title="Force Sync to Vector DB"
+                onclick="handleSync('{{ file.name }}')"
+              >
+                <i class="fas fa-sync-alt"></i>
+              </button>
+              <button
+                class="action-btn"
+                style="background: #fee2e2; color: #dc2626"
+                title="Delete File"
+                onclick="confirmDelete('{{ file.name }}')"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+          {% endfor %} {% else %}
+          <p
+            style="
+              color: #64748b;
+              font-size: 0.9rem;
+              text-align: center;
+              padding: 20px;
+            "
+          >
+            No documents currently indexed.
+          </p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Edit Modal -->
+      <div class="modal-overlay" id="editModal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>
+              <i class="fas fa-pen" style="margin-right: 8px"></i> Editing:
+              <span id="modalFilename">—</span>
+            </h3>
+            <button class="modal-close" onclick="closeEditor()" title="Close">
+              &times;
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="modalStatus" class="modal-status"></div>
+            <div id="editorLoading" class="loading-spinner">
+              <i class="fas fa-spinner fa-spin" style="font-size: 2rem"></i>
+              <p>Loading PDF content...</p>
+            </div>
+            <div id="editorContent" style="display: none">
+              <div class="page-tabs" id="pageTabs"></div>
+              <div id="pageEditors"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeEditor()">
+              Cancel
+            </button>
+            <button
+              class="btn-save"
+              id="saveBtn"
+              onclick="saveEdits()"
+              disabled
+            >
+              <i class="fas fa-save"></i> Save File
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentFile = null;
+      let pageData = [];
+
+      // Function to verify password and show the dashboard
+      async function loginAdmin() {
+        const pass = document.getElementById("adminPass").value;
+        const res = await fetch("/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ admin_password: pass }),
+        });
+        if (res.ok) {
+          showAdminPanel();
+          window.location.reload();
+        } else {
+          alert("Invalid Key");
+        }
+      }
+
+      function showAdminPanel() {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("adminControls").style.display = "block";
+      }
+
+      // Auto-check on page load
+      window.onload = () => {
+        // Use Jinja2 to check if the admin is logged in from the server side
+        // Wrap in quotes to be safe, then check the string
+        const isLoggedIn =
+          "{{ 'true' if session.get('admin_logged_in') else 'false' }}" ===
+          "true";
+        if (isLoggedIn) {
+          showAdminPanel();
+        }
+      };
+
+      function updateNameDisplay(input) {
+        const display = document.getElementById("fileNameDisplay");
+        if (input.files && input.files[0]) {
+          display.innerHTML = `<span style="color: #2563eb; font-weight: 600;">Selected: ${input.files[0].name}</span>`;
+        }
+      }
+
+      // function validateSync() {
+      //   const pass = localStorage.getItem("admin_token");
+      //   if (!pass) {
+      //     alert(
+      //       "Please enter the Admin Secret Key to perform synchronization.",
+      //     );
+      //     document.getElementById("adminPass").focus();
+      //     return false;
+      //   }
+      //   document
+      //     .querySelectorAll(".sync-pass-field")
+      //     .forEach((f) => (f.value = pass));
+      //   return true;
+      // }
+
+      // --- Editor ---
+
+      async function openEditor(filename) {
+        currentFile = filename;
+        document.getElementById("modalFilename").textContent = filename;
+        document.getElementById("editModal").classList.add("active");
+        document.getElementById("editorLoading").style.display = "block";
+        document.getElementById("editorContent").style.display = "none";
+        document.getElementById("saveBtn").disabled = true;
+        setStatus("", "");
+
+        try {
+          const res = await fetch(
+            `/admin/edit/${encodeURIComponent(filename)}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            },
+          );
+
+          const data = await res.json();
+
+          if (!res.ok || data.error) {
+            setStatus(data.error || "Failed to load file.", "error");
+            document.getElementById("editorLoading").style.display = "none";
+            return;
+          }
+
+          pageData = data.pages;
+          renderEditor(pageData);
+          document.getElementById("editorLoading").style.display = "none";
+          document.getElementById("editorContent").style.display = "block";
+          document.getElementById("saveBtn").disabled = false;
+        } catch (e) {
+          setStatus("Network error: " + e.message, "error");
+          document.getElementById("editorLoading").style.display = "none";
+        }
+      }
+
+      function renderEditor(pages) {
+        const tabs = document.getElementById("pageTabs");
+        const editors = document.getElementById("pageEditors");
+        tabs.innerHTML = "";
+        editors.innerHTML = "";
+
+        pages.forEach((p, i) => {
+          // Tab
+          const tab = document.createElement("button");
+          tab.className = "page-tab" + (i === 0 ? " active" : "");
+          tab.textContent = `Page ${p.page}`;
+          tab.onclick = () => switchPage(i);
+          tabs.appendChild(tab);
+
+          // Editor pane
+          const pane = document.createElement("div");
+          pane.className = "page-editor" + (i === 0 ? " active" : "");
+          pane.dataset.index = i;
+
+          const label = document.createElement("p");
+          label.style.cssText =
+            "font-size:0.8rem;color:#64748b;margin:0 0 8px;";
+          label.textContent = `Page ${p.page} — Edit text below. Formatting will be plain text in the regenerated PDF.`;
+
+          const ta = document.createElement("textarea");
+          ta.value = p.text;
+          ta.dataset.page = p.page;
+          // Track changes
+          ta.addEventListener("input", () =>
+            setStatus("Unsaved changes.", "info"),
+          );
+
+          pane.appendChild(label);
+          pane.appendChild(ta);
+          editors.appendChild(pane);
+        });
+      }
+
+      function switchPage(index) {
+        document
+          .querySelectorAll(".page-tab")
+          .forEach((t, i) => t.classList.toggle("active", i === index));
+        document
+          .querySelectorAll(".page-editor")
+          .forEach((p, i) => p.classList.toggle("active", i === index));
+      }
+
+      async function saveEdits() {
+        // Collect current textarea values
+        const pages = [];
+        document.querySelectorAll(".page-editor textarea").forEach((ta) => {
+          pages.push({ page: parseInt(ta.dataset.page), text: ta.value });
+        });
+
+        const saveBtn = document.getElementById("saveBtn");
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        setStatus("⌛ Saving your changes to the server...", "info");
+
+        try {
+          const res = await fetch(
+            `/admin/save/${encodeURIComponent(currentFile)}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ pages }),
+            },
+          );
+
+          const data = await res.json();
+
+          if (!res.ok || data.error) {
+            const errorMsg = data.error || `Server error: ${res.status}`;
+            setStatus(`❌ Save Failed: ${errorMsg}`, "error");
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Retry Save';
+          } else {
+            setStatus("✅ File saved successfully!", "success");
+            alert(
+              `Success! "${currentFile}" has been updated.\n\nThe document is now ready to be synced with the AI memory.`,
+            );
+            window.location.href = "/admin/upload";
+          }
+        } catch (e) {
+          setStatus(
+            `🌐 Connection Error: Could not reach the server. ${e.message}`,
+            "error",
+          );
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<i class="fas fa-save"></i> Try Again';
+        }
+      }
+
+      async function handleUpload(event) {
+        event.preventDefault(); // Prevent page reload
+
+        const form = event.target;
+        const btn = form.querySelector('button[type="submit"]');
+        const status = document.getElementById("uploadStatus");
+        const formData = new FormData(form);
+
+        // Manually add the saved token to the background upload request
+        // formData.append("admin_password", localStorage.getItem("admin_token"));
+
+        // Initial Feedback
+        btn.disabled = true;
+        btn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Processing & Indexing...';
+
+        // Use the CSS classes you already have for modal-status
+        status.className = "modal-status info";
+        status.textContent =
+          "⌛ Reading PDF and generating AI embeddings. Please wait...";
+        status.style.display = "block";
+
+        try {
+          const res = await fetch("/admin/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            // Error Styling
+            status.className = "modal-status error";
+            status.textContent = `❌ ${data.error || "Upload failed."}`;
+            btn.disabled = false;
+            btn.innerHTML = "Upload & Process";
+          } else {
+            // Success Styling
+            status.className = "modal-status success";
+            status.textContent = `✅ Success: ${data.message}`;
+
+            // Optional: Final alert before refresh
+            alert(`Document Synced: ${data.message}`);
+            window.location.reload();
+          }
+        } catch (e) {
+          status.className = "modal-status error";
+          status.textContent =
+            "🌐 Connection Error: Could not reach the server.";
+          btn.disabled = false;
+          btn.innerHTML = "Retry Upload";
+        }
+      }
+
+      function closeEditor() {
+        document.getElementById("editModal").classList.remove("active");
+        currentFile = null;
+        pageData = [];
+      }
+
+      function setStatus(msg, type) {
+        const el = document.getElementById("modalStatus");
+        el.className = "modal-status" + (type ? " " + type : "");
+        el.textContent = msg;
+      }
+
+      async function handleSync(filename) {
+        const status = document.getElementById("uploadStatus");
+        status.className = "modal-status info";
+        status.textContent = `⌛ Syncing ${filename} with AI memory...`;
+        status.style.display = "block";
+
+        try {
+          const res = await fetch(
+            `/admin/sync/${encodeURIComponent(filename)}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            },
+          );
+
+          const data = await res.json();
+
+          if (res.ok) {
+            alert("✅ " + data.message);
+            window.location.reload();
+          } else {
+            status.className = "modal-status error";
+            status.textContent = `❌ Sync Failed: ${data.error}`;
+          }
+        } catch (e) {
+          status.className = "modal-status error";
+          status.textContent = "🌐 Connection error during sync.";
+        }
+      }
+
+      async function logout() {
+        try {
+          await fetch("/admin/logout"); // Call the new logout route
+          // Crucial: Clear any local states and reload the page
+          currentFile = null;
+          pageData = [];
+          window.location.reload();
+        } catch (e) {
+          console.error("Logout failed", e);
+          window.location.reload(); // Reload anyway to reset the UI
+        }
+      }
+
+      async function confirmDelete(filename) {
+        if (
+          !confirm(
+            `Are you sure you want to permanently delete "${filename}"? This will also remove all AI knowledge associated with this file.`,
+          )
+        ) {
+          return;
+        }
+
+        // Show global status
+        const status = document.getElementById("uploadStatus");
+        status.className = "modal-status info";
+        status.textContent = `⌛ Deleting ${filename} and cleaning database...`;
+        status.style.display = "block";
+
+        try {
+          const res = await fetch(
+            `/admin/delete/${encodeURIComponent(filename)}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            },
+          );
+
+          const data = await res.json();
+
+          if (res.ok) {
+            alert(data.message);
+            window.location.reload();
+          } else {
+            status.className = "modal-status error";
+            status.textContent = `❌ Delete Failed: ${data.error}`;
+          }
+        } catch (e) {
+          status.className = "modal-status error";
+          status.textContent =
+            "🌐 Connection Error: Could not reach the server.";
+        }
+      }
+
+      // Close modal on overlay click
+      document
+        .getElementById("editModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeEditor();
+        });
+    </script>
+  </body>
+</html>
