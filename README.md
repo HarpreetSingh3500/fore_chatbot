@@ -82,7 +82,7 @@ source venv/bin/activate
 ### 3. Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install -r req.txt
 ```
 
 ### 4. Install Ollama and Llama 3.2
