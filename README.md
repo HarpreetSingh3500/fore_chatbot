@@ -271,8 +271,8 @@ This project is proprietary and confidential. Unauthorized copying or distributi
 ## 👨‍💻 Author
 
 **Harpreet Singh**  
-- GitHub: [@Harpreet-Singh-lks](https://github.com/Harpreet-Singh-lks)  
-- LinkedIn: [Connect with me](https://linkedin.com/in/your-profile)
+- GitHub: [@Harpreet-Singh](https://github.com/HarpreetSingh3500/)  
+- LinkedIn: [Connect with me](https://www.linkedin.com/in/harpreet-singh-3500am/)
 
 ## 🙏 Acknowledgments
 
